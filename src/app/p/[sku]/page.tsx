@@ -1,4 +1,6 @@
 // src/app/p/[sku]/page.tsx
+export const dynamic = 'force-dynamic';
+
 import Image from 'next/image'
 
 interface Props { params: { sku: string } }
