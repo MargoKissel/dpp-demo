@@ -1,9 +1,11 @@
-// src/app/p/[sku]/page.tsx
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store'
 
 import Image from 'next/image'
 
-interface Props { params: { sku: string } }
+interface Props {
+  params: { sku: string }
+}
 
 async function fetchProduct(sku: string) {
   const url = `${process.env.NEXT_PUBLIC_SHEETS_API_BASE}?sku=${encodeURIComponent(sku)}`
@@ -26,12 +28,7 @@ export default async function ProductPage({ params }: Props) {
         <li><strong>Claim:</strong> {data.marketingClaim}</li>
         <li><strong>Status:</strong> {data.ruleStatus}</li>
       </ul>
-      <Image
-        src={data.qr_link}
-        alt="QR code"
-        width={200}
-        height={200}
-      />
+      <Image src={data.qr_link} alt="QR code" width={200} height={200} />
     </main>
   )
 }
