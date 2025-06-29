@@ -2,8 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   experimental: {
-    appDir: true, // без этого Next.js не увидит папку app/
+    appDir: true,
   },
-}
+};
 
-export default nextConfig
+export default nextConfig;
