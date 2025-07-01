@@ -17,34 +17,17 @@ export async function generateStaticParams() {
   return [{ sku: '1001' }, { sku: 'XYZ' }];
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { sku: string };
-}) {
+export async function generateMetadata({ params }: any) {
   return {
     title: `Product Page – SKU ${params.sku}`,
     description: `Detailed product information for SKU ${params.sku}.`,
   };
 }
 
-export default async function ProductPage({
-  params,
-  searchParams,
-}: {
-  params: { sku: string };
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
-  const { sku } = params;
-  let data: {
-    name: string;
-    material: string;
-    countryOfOrigin: string;
-    co2_kg: number;
-    marketingClaim: string;
-    lastModified: string;
-  } | null = null;
-  let error: string | null = null;
+// Убираем все типы из параметров и принимаем один объект props
+export default async function ProductPage(props: any) {
+  const { sku } = props.params as { sku: string };
+  let data: any, error: string | undefined;
 
   try {
     data = await fetchProduct(sku);
@@ -52,7 +35,7 @@ export default async function ProductPage({
     error = e.message;
   }
 
-  if (error || !data) {
+  if (error) {
     return (
       <main style={{ padding: 32, color: 'red' }}>
         <h1>Error fetching SKU {sku}</h1>
@@ -71,20 +54,12 @@ export default async function ProductPage({
           gap: '8px 16px',
         }}
       >
-        <dt>Name:</dt>
-        <dd>{data.name}</dd>
-        <dt>Material:</dt>
-        <dd>{data.material}</dd>
-        <dt>Country of Origin:</dt>
-        <dd>{data.countryOfOrigin}</dd>
-        <dt>CO₂ (kg):</dt>
-        <dd>{data.co2_kg}</dd>
-        <dt>Marketing Claim:</dt>
-        <dd>{data.marketingClaim}</dd>
-        <dt>Last Modified:</dt>
-        <dd>
-          {new Date(data.lastModified).toLocaleDateString('en-GB')}
-        </dd>
+        <dt>Name:</dt><dd>{data.name}</dd>
+        <dt>Material:</dt><dd>{data.material}</dd>
+        <dt>Country of Origin:</dt><dd>{data.countryOfOrigin}</dd>
+        <dt>CO₂ (kg):</dt><dd>{data.co2_kg}</dd>
+        <dt>Marketing Claim:</dt><dd>{data.marketingClaim}</dd>
+        <dt>Last Modified:</dt><dd>{new Date(data.lastModified).toLocaleDateString('en-GB')}</dd>
       </dl>
     </main>
   );
