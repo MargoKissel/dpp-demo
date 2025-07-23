@@ -1,66 +1,77 @@
 // src/app/p/[sku]/page.tsx
+import { fetchProduct } from '@/lib/fetchProduct';
+import { EcoButton } from '@/components/EcoButton';
 
-export const dynamic = 'force-dynamic';
-export const dynamicParams = true;
-export const revalidate = 60;
+export const dynamic        = 'force-dynamic';
+export const dynamicParams  = true;       // /p/XYZ отрендерится даже без прегенерации
+export const revalidate     = 60;         // ISR: 60 сек
 
-async function fetchProduct(sku: string) {
-  const base = process.env.NEXT_PUBLIC_SHEETS_API_BASE!;
-  const sep = base.includes('?') ? '&' : '?';
-  const url = base + sep + 'sku=' + encodeURIComponent(sku);
-  const res = await fetch(url, { next: { revalidate: 60 } });
-  if (!res.ok) throw new Error('API error ' + res.status);
-  return res.json();
-}
-
+/* — статически заранее “забиваем” один-два SKU, чтобы билд не ругался */
 export async function generateStaticParams() {
-  return [{ sku: '1001' }, { sku: 'XYZ' }];
+  return [{ sku: '1001' }, { sku: '1002' }];
 }
 
-export async function generateMetadata({ params }: any) {
+/* SEO / OG */
+export async function generateMetadata({ params }: { params: { sku: string } }) {
   return {
-    title: `Product Page – SKU ${params.sku}`,
-    description: `Detailed product information for SKU ${params.sku}.`,
+    title: `Digital Product Passport – SKU ${params.sku}`,
+    description: `Open digital passport for product SKU ${params.sku}.`,
   };
 }
 
-// Убираем все типы из параметров и принимаем один объект props
-export default async function ProductPage(props: any) {
-  const { sku } = props.params as { sku: string };
-  let data: any, error: string | undefined;
+/* ---------- СТРАНИЦА ---------- */
+export default async function ProductPage({ params }: { params: { sku: string } }) {
+  const { sku } = params;
+  let product: Awaited<ReturnType<typeof fetchProduct>>;
 
   try {
-    data = await fetchProduct(sku);
-  } catch (e: any) {
-    error = e.message;
-  }
-
-  if (error) {
+    product = await fetchProduct(sku);
+    if (!product?.sku) throw new Error('not-found');
+  } catch (err) {
+    /* можно сделать собственный 404 */
     return (
-      <main style={{ padding: 32, color: 'red' }}>
-        <h1>Error fetching SKU {sku}</h1>
-        <pre>{error}</pre>
+      <main className="p-8 text-red-600">
+        <h1 className="text-2xl font-semibold">Fehler – SKU {sku}</h1>
+        <p>{(err as Error).message}</p>
       </main>
     );
   }
 
   return (
-    <main style={{ padding: 32, fontFamily: 'sans-serif' }}>
-      <h1>Product – SKU {sku}</h1>
-      <dl
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'max-content 1fr',
-          gap: '8px 16px',
-        }}
-      >
-        <dt>Name:</dt><dd>{data.name}</dd>
-        <dt>Material:</dt><dd>{data.material}</dd>
-        <dt>Country of Origin:</dt><dd>{data.countryOfOrigin}</dd>
-        <dt>CO₂ (kg):</dt><dd>{data.co2_kg}</dd>
-        <dt>Marketing Claim:</dt><dd>{data.marketingClaim}</dd>
-        <dt>Last Modified:</dt><dd>{new Date(data.lastModified).toLocaleDateString('en-GB')}</dd>
+    <main className="p-8 font-sans max-w-xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">Product – SKU {sku}</h1>
+
+      <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2">
+        <dt>Name:</dt>
+        <dd>{product.name}</dd>
+
+        <dt>Material:</dt>
+        <dd>{product.material}</dd>
+
+        <dt>Country of Origin:</dt>
+        <dd>{product.country}</dd>
+
+        <dt>CO₂ (kg):</dt>
+        <dd>{product.co2_kg}</dd>
+
+        <dt>Marketing Claim:</dt>
+        <dd>{product.marketing_claim}</dd>
+
+        <dt>Last Modified:</dt>
+        <dd>
+          {new Date(product.last_modified).toLocaleDateString('de-DE', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          })}
+        </dd>
+
+        <dt>Row Hash:</dt>
+        <dd className="break-all text-xs text-gray-500">{product.row_hash}</dd>
       </dl>
+
+      {/* ───── Eco-Points кнопка ───── */}
+      <EcoButton sku={sku} />
     </main>
   );
 }
