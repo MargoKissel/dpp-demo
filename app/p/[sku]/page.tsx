@@ -1,6 +1,6 @@
 // src/app/p/[sku]/page.tsx
-import { fetchProduct } from '@/lib/fetchProduct';
-import { EcoButton } from '@/components/EcoButton';
++ import { fetchProduct } from '../../../lib/fetchProduct';
++ import { EcoButton }    from '../../../components/EcoButton';
 
 export const dynamic        = 'force-dynamic';
 export const dynamicParams  = true;       // /p/XYZ отрендерится даже без прегенерации
