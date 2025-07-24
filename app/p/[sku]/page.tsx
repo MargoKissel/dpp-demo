@@ -1,4 +1,5 @@
-import type { PageProps } from 'next';
+// app/p/[sku]/page.tsx
+import type { Metadata }  from 'next';
 import { fetchProduct }   from '@/lib/fetchProduct';
 import { EcoButton }      from '@/components/EcoButton';
 
@@ -6,29 +7,24 @@ export const dynamic       = 'force-dynamic';
 export const dynamicParams = true;
 export const revalidate    = 60;
 
-/* -------------------------------------------------- */
-/*  SSG                                               */
-/* -------------------------------------------------- */
+/* ----------------------------------------- */
+type Params = { sku: string };
+
+/* — SSG — */
 export function generateStaticParams() {
   return [{ sku: '1001' }, { sku: '1002' }];
 }
 
-/* -------------------------------------------------- */
-/*  SEO                                               */
-/* -------------------------------------------------- */
-export function generateMetadata({ params }: PageProps<{ sku: string }>) {
+/* — SEO — */
+export function generateMetadata({ params }: { params: Params }): Metadata {
   return {
     title: `Digital Product Passport – SKU ${params.sku}`,
     description: `Open digital passport for product SKU ${params.sku}.`,
   };
 }
 
-/* -------------------------------------------------- */
-/*  Page component                                    */
-/* -------------------------------------------------- */
-export default async function ProductPage(
-  { params }: PageProps<{ sku: string }>
-) {
+/* — Страница — */
+export default async function ProductPage({ params }: { params: Params }) {
   const { sku } = params;
 
   let product;
@@ -57,9 +53,7 @@ export default async function ProductPage(
         <dt>Last&nbsp;Modified:</dt>
         <dd>
           {new Date(product.last_modified).toLocaleDateString('de-DE', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
+            year: 'numeric', month: '2-digit', day: '2-digit',
           })}
         </dd>
         <dt>Row&nbsp;Hash:</dt>
