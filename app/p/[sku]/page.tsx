@@ -1,31 +1,27 @@
 // app/p/[sku]/page.tsx
-import type { Metadata }  from 'next';
-import { fetchProduct }   from '@/lib/fetchProduct';
-import { EcoButton }      from '@/components/EcoButton';
+import { fetchProduct } from '@/lib/fetchProduct';
+import { EcoButton }    from '@/components/EcoButton';
 
 export const dynamic       = 'force-dynamic';
 export const dynamicParams = true;
 export const revalidate    = 60;
 
-/* ----------------------------------------- */
-type Params = { sku: string };
-
-/* — SSG — */
+/* SSG ───── */
 export function generateStaticParams() {
   return [{ sku: '1001' }, { sku: '1002' }];
 }
 
-/* — SEO — */
-export function generateMetadata({ params }: { params: Params }): Metadata {
+/* SEO ───── */
+export function generateMetadata({ params }) {
   return {
     title: `Digital Product Passport – SKU ${params.sku}`,
     description: `Open digital passport for product SKU ${params.sku}.`,
   };
 }
 
-/* — Страница — */
-export default async function ProductPage({ params }: { params: Params }) {
-  const { sku } = params;
+/* PAGE ──── */
+export default async function ProductPage({ params }) {
+  const sku = params.sku;
 
   let product;
   try {
