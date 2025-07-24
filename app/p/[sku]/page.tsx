@@ -1,37 +1,34 @@
-// app/p/[sku]/page.tsx
-import { fetchProduct } from '@/lib/fetchProduct';
-import { EcoButton }    from '@/components/EcoButton';
+import type { PageProps } from 'next';
+import { fetchProduct }   from '@/lib/fetchProduct';
+import { EcoButton }      from '@/components/EcoButton';
 
 export const dynamic       = 'force-dynamic';
 export const dynamicParams = true;
 export const revalidate    = 60;
 
-/* ------------------------------------------------------------ */
-/*  Вспомогательные типы                                        */
-/* ------------------------------------------------------------ */
-type Params = { sku: string };
-
-/* ------------------------------------------------------------ */
-/*  Статические slug-и для SSG                                  */
-/* ------------------------------------------------------------ */
+/* -------------------------------------------------- */
+/*  SSG                                               */
+/* -------------------------------------------------- */
 export function generateStaticParams() {
   return [{ sku: '1001' }, { sku: '1002' }];
 }
 
-/* ------------------------------------------------------------ */
-/*  SEO / OG                                                     */
-/* ------------------------------------------------------------ */
-export function generateMetadata({ params }: { params: Params }) {
+/* -------------------------------------------------- */
+/*  SEO                                               */
+/* -------------------------------------------------- */
+export function generateMetadata({ params }: PageProps<{ sku: string }>) {
   return {
     title: `Digital Product Passport – SKU ${params.sku}`,
     description: `Open digital passport for product SKU ${params.sku}.`,
   };
 }
 
-/* ------------------------------------------------------------ */
-/*  Страница                                                     */
-/* ------------------------------------------------------------ */
-export default async function ProductPage({ params }: { params: Params }) {
+/* -------------------------------------------------- */
+/*  Page component                                    */
+/* -------------------------------------------------- */
+export default async function ProductPage(
+  { params }: PageProps<{ sku: string }>
+) {
   const { sku } = params;
 
   let product;
@@ -66,9 +63,7 @@ export default async function ProductPage({ params }: { params: Params }) {
           })}
         </dd>
         <dt>Row&nbsp;Hash:</dt>
-        <dd className="break-all text-xs text-gray-500">
-          {product.row_hash}
-        </dd>
+        <dd className="break-all text-xs text-gray-500">{product.row_hash}</dd>
       </dl>
 
       <EcoButton sku={sku} />
