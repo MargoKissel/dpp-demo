@@ -10,14 +10,24 @@ export function generateStaticParams() {
   return [{ sku: '1001' }, { sku: '1002' }]
 }
 
-export function generateMetadata({ params }: { params: { sku: string } }) {
+export function generateMetadata({
+  params,
+}: {
+  params: { sku: string }
+}) {
   return {
-    title: `Digital Product Passport – SKU ${params.sku}`,
+    title:       `Digital Product Passport – SKU ${params.sku}`,
     description: `Open digital passport for product SKU ${params.sku}.`,
   }
 }
 
-export default async function ProductPage({ params }: { params: { sku: string } }) {
+export default async function ProductPage({
+  params,
+  searchParams, // обязательное поле, даже если вы его не используете
+}: {
+  params: { sku: string }
+  searchParams: Record<string, string | string[] | undefined>
+}) {
   const { sku } = params
   let product: any
 
