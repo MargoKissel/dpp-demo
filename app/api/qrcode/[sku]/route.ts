@@ -1,29 +1,24 @@
-// @ts-nocheck
-import QRCode from 'qrcode'
+// app/api/qrcode/[sku]/route.ts
+import type { NextRequest } from 'next/server';
+import QRCode from 'qrcode';
 
-export const revalidate = 0
+export const runtime = 'edge';
+export const revalidate = 0;
 
-export async function GET(request: Request, context: any) {
-  const { sku } = context.params
+export async function GET(
+  _req: NextRequest,
+  context: { params: { sku: string } }
+) {
+  const { sku } = context.params;
+  // убедитесь, что в Vercel есть эта переменная
+  const base = process.env.NEXT_PUBLIC_SITE_URL!;
+  const url  = `${base}/p/${encodeURIComponent(sku)}`;
 
-  const site = process.env.NEXT_PUBLIC_SITE_URL
-  if (!site) {
-    return new Response('Missing NEXT_PUBLIC_SITE_URL', { status: 500 })
-  }
-
-  const url = `${site}/p/${sku}`
-
-  let png: Buffer
-  try {
-    png = await QRCode.toBuffer(url, { width: 256, margin: 1 })
-  } catch {
-    return new Response('QR generation failed', { status: 500 })
-  }
-
+  const png = await QRCode.toBuffer(url, { width: 256, margin: 1 });
   return new Response(png, {
     headers: {
       'Content-Type': 'image/png',
       'Cache-Control': 'public, max-age=31536000, immutable',
     },
-  })
+  });
 }
