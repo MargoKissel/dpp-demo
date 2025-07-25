@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+mport { NextRequest } from 'next/server';
 import QRCode from 'qrcode';
 
 export const revalidate = 0;
@@ -12,7 +12,8 @@ export async function GET(
     width: 256,
     margin: 1,
   });
-return new Response(png, {
+
+  return new Response(png, {
     headers: {
       'Content-Type': 'image/png',
       'Cache-Control': 'public, max-age=31536000, immutable',
