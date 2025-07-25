@@ -1,4 +1,3 @@
-// app/p/[sku]/page.tsx
 import { fetchProduct } from '@/lib/fetchProduct'
 import { EcoButton }    from '@/components/EcoButton'
 
