@@ -1,6 +1,5 @@
 // @ts-nocheck
- // app/p/[sku]/page.tsx
- import { fetchProduct } from '@/lib/fetchProduct'
+import { fetchProduct } from '@/lib/fetchProduct'
 import { EcoButton }    from '@/components/EcoButton'
 
 export const dynamic       = 'force-dynamic'
