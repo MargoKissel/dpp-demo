@@ -1,6 +1,5 @@
 // @ts-nocheck
- // app/api/qrcode/[sku]/route.ts
- import QRCode from 'qrcode'
+import QRCode from 'qrcode'
 
 export const revalidate = 0
 
