@@ -7,21 +7,18 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: { sku: string } }
 ) {
-  // dùng biến окружения для базового URL
   const site = process.env.NEXT_PUBLIC_SITE_URL!
   if (!site) {
     return new Response('Missing NEXT_PUBLIC_SITE_URL', { status: 500 })
   }
-
   const text = `${site}/p/${params.sku}`
-  let buffer: Buffer
+  let png: Buffer
   try {
-    buffer = await QRCode.toBuffer(text, { width: 256, margin: 1 })
-  } catch (e) {
-    return new Response('QR generation error', { status: 500 })
+    png = await QRCode.toBuffer(text, { width: 256, margin: 1 })
+  } catch {
+    return new Response('QR generation failed', { status: 500 })
   }
-
-  return new Response(buffer, {
+  return new Response(png, {
     headers: {
       'Content-Type': 'image/png',
       'Cache-Control': 'public, max-age=31536000, immutable',
