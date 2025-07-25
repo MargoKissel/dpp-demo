@@ -5,13 +5,22 @@ import QRCode          from 'qrcode'
 export const revalidate = 0
 
 export async function GET(
-  _req: NextRequest,                       // ← 1‑й аргумент — NextRequest
-  { params }: { params: { sku: string } }  // ← 2‑й аргумент — context c params
+  request: Request,  // <- используем встроенный Web API Request
+  {
+    params,
+    searchParams,    // <- обязательно, чтобы тип совпал с тем, что Next.js передаёт
+  }: {
+    params: { sku: string }
+    searchParams: Record<string, string | string[] | undefined>
+  }
 ) {
+  const { sku } = params
   const site = process.env.NEXT_PUBLIC_SITE_URL
-  if (!site) return new Response('Missing NEXT_PUBLIC_SITE_URL', { status: 500 })
+  if (!site) {
+    return new Response('Missing NEXT_PUBLIC_SITE_URL', { status: 500 })
+  }
 
-  const url = `${site}/p/${params.sku}`
+  const url = `${site}/p/${sku}`
 
   let png: Buffer
   try {
