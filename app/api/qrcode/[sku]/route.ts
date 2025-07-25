@@ -1,20 +1,13 @@
 // app/api/qrcode/[sku]/route.ts
-import { NextRequest } from 'next/server'
-import QRCode          from 'qrcode'
+import QRCode from 'qrcode'
 
 export const revalidate = 0
 
 export async function GET(
-  request: Request,  // <- используем встроенный Web API Request
-  {
-    params,
-    searchParams,    // <- обязательно, чтобы тип совпал с тем, что Next.js передаёт
-  }: {
-    params: { sku: string }
-    searchParams: Record<string, string | string[] | undefined>
-  }
+  request: Request,                    // ← встроенный Web API Request
+  context: { params: { sku: string } } // ← ровно такой второй аргумент
 ) {
-  const { sku } = params
+  const { sku } = context.params
   const site = process.env.NEXT_PUBLIC_SITE_URL
   if (!site) {
     return new Response('Missing NEXT_PUBLIC_SITE_URL', { status: 500 })
