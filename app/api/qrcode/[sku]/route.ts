@@ -1,10 +1,10 @@
-import { NextRequest } from 'next/server'
+// app/api/qrcode/[sku]/route.ts
 import QRCode from 'qrcode'
 
 export const revalidate = 0
 
 export async function GET(
-  _req: NextRequest,
+  request: Request,
   { params }: { params: { sku: string } }
 ) {
   const site = process.env.NEXT_PUBLIC_SITE_URL!
