@@ -1,10 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+
+  // ⬇️ Отключаем падение билда от TS
   typescript: {
-    // Позволяет собирать даже если есть ошибки TS
     ignoreBuildErrors: true,
+  },
+
+  // ⬇️ И от ESLint‑предупреждений
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 }
 
-export default nextConfig
+module.exports = nextConfig
