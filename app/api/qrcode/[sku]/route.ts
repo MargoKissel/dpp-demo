@@ -1,17 +1,21 @@
 // app/api/qrcode/[sku]/route.ts
-// @ts-nocheck
 import QRCode from 'qrcode';
 
 export const dynamic = 'force-dynamic';
 
+/*  ❌ НЕТ строгой типизации второго аргумента – ставим any  */
 export async function GET(
   _req: Request,
-  { params }: { params: { sku: string } }
+  { params }: any          // ← важно
 ) {
   const site = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!site) return new Response('Missing NEXT_PUBLIC_SITE_URL', { status: 500 });
+  if (!site) {
+    return new Response('Missing NEXT_PUBLIC_SITE_URL', { status: 500 });
+  }
 
-  const png = await QRCode.toBuffer(`${site}/p/${params.sku}`, {
+  const { sku } = params;
+
+  const png = await QRCode.toBuffer(`${site}/p/${sku}`, {
     width: 256,
     margin: 1,
   });
