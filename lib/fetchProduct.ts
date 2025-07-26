@@ -1,11 +1,13 @@
 // lib/fetchProduct.ts
 export async function fetchProduct(sku: string) {
+  // пытаемся сначала взять SHEETS_API, а если её нет — NEXT_PUBLIC_SHEETS_API_BASE
   const SHEETS =
-    process.env.SHEETS_API https://script.google.com/macros/s/AKfycbzvZ0HtvsTbQCPkUpZBGiGMdm9AKlsWodSZAyOF8aWPnxSfXcHN5MstBPVx1gQEWX26/exec
-    process.env.NEXT_PUBLIC_SHEETS_API_BASE; // берём базовый URL откуда есть
+    process.env.SHEETS_API ??
+    process.env.NEXT_PUBLIC_SHEETS_API_BASE;
+  // аналогично для ключа
   const KEY =
-    process.env.SHEETS_API_KEY r9vXh7KdPq6s2LJ4zUt0GmYcEsBnQa5
-    process.env.NEXT_PUBLIC_SHEETS_API_KEY; // берём ключ откуда есть
+    process.env.SHEETS_API_KEY ??
+    process.env.NEXT_PUBLIC_SHEETS_API_KEY;
 
   if (!SHEETS || !KEY) {
     throw new Error('SHEETS_API/SHEETS_API_KEY are not defined');
@@ -13,6 +15,8 @@ export async function fetchProduct(sku: string) {
 
   const url = `${SHEETS}?sku=${encodeURIComponent(sku)}&key=${KEY}`;
   const res = await fetch(url, { next: { revalidate: 60 } });
-  if (!res.ok) throw new Error('Sheets fetch error ' + res.status);
+  if (!res.ok) {
+    throw new Error('Sheets fetch error ' + res.status);
+  }
   return res.json();
 }
