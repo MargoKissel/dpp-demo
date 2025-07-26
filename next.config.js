@@ -1,16 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-
-  // ⬇️ Отключаем падение билда от TS
-  typescript: {
-    ignoreBuildErrors: true,
+  images: {
+    domains: ['raw.githubusercontent.com', 'res.cloudinary.com', 'drive.google.com'],
   },
-
-  // ⬇️ И от ESLint‑предупреждений
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-}
-
-module.exports = nextConfig
+};
+export default nextConfig;
