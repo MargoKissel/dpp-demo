@@ -1,6 +1,8 @@
 // @ts-nocheck
 import { fetchProduct } from '@/lib/fetchProduct'
 import { EcoButton }    from '@/components/EcoButton'
+import Image from 'next/image';
+
 
 export const dynamic       = 'force-dynamic'
 export const dynamicParams = true
@@ -42,14 +44,16 @@ export default async function ProductPage({ params, searchParams }: any) {
         Product – SKU {sku}
       </h1>
 
-      {/* Фото (если есть URL в sheets) */}
       {product.image_url && (
-        <img
-          src={product.image_url}
-          alt={product.name}
-          className="w-full max-w-xs rounded-lg mb-6"
-        />
-      )}
+  <Image
+    src={product.image_url}
+    alt={product.name}
+    width={400}
+    height={400}
+    className="rounded-lg mb-6"
+    unoptimized     // если домен не в images.domains – временно можно так
+  />
+)}
 
       <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 mb-6">
         <dt>Name:</dt>                <dd>{product.name}</dd>
