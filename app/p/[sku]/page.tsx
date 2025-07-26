@@ -8,9 +8,6 @@ export const dynamic       = 'force-dynamic'
 export const dynamicParams = true
 export const revalidate    = 60
 
-export function generateStaticParams() {
-  return [{ sku: '1001' }, { sku: '1002' }]
-}
 
 export function generateMetadata({ params }: { params: { sku: string } }) {
   return {
