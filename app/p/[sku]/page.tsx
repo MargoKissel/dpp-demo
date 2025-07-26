@@ -9,11 +9,12 @@ export const dynamicParams = true
 export const revalidate    = 60
 
 
-export function generateMetadata({ params }: { params: { sku: string } }) {
+export async function generateMetadata({ params }: any) {
+  const { sku } = await params;
   return {
-    title:       `Digital Product Passport – SKU ${params.sku}`,
-    description: `Open digital passport for product SKU ${params.sku}.`,
-  }
+    title: `Digital Product Passport – SKU ${sku}`,
+    description: `open digital passport for product SKU ${sku}.`,
+  };
 }
 
 // Убираем строгие типы пропсов — принимаем любой объект
