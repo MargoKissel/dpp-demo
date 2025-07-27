@@ -1,26 +1,16 @@
 // app/api/qrcode/[sku]/route.ts
 import QRCode from 'qrcode';
 
-export const dynamic = 'force-dynamic';
+export const runtime  = 'nodejs';       // ← добавили
+export const dynamic  = 'force-dynamic';
 
-/*  ❌ НЕТ строгой типизации второго аргумента – ставим any  */
-export async function GET(
-  _req: Request,
-  { params }: any          // ← важно
-) {
-  const site = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!site) {
-    return new Response('Missing NEXT_PUBLIC_SITE_URL', { status: 500 });
-  }
+export async function GET(_req: Request, { params }: any) {
+  const base = process.env.NEXT_PUBLIC_SITE_URL
+            ?? process.env.VERCEL_URL
+            ?? 'https://dpp-demo-lac.vercel.app';
 
-  const { sku } = params;
+  const url  = base.startsWith('http') ? base : `https://${base}`;
+  const png  = await QRCode.toBuffer(`${url}/p/${params.sku}`, { width: 256, margin: 1 });
 
-  const png = await QRCode.toBuffer(`${site}/p/${sku}`, {
-    width: 256,
-    margin: 1,
-  });
-
-  return new Response(png, {
-    headers: { 'Content-Type': 'image/png' },
-  });
+  return new Response(png, { headers: { 'Content-Type': 'image/png' } });
 }
