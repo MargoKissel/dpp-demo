@@ -1,82 +1,76 @@
-import Image from 'next/image'
-import { EcoButton } from '@/components/EcoButton'
-import { fetchProduct } from '@/lib/fetchProduct'
+// app/p/[sku]/page.tsx
+import { fetchProduct }         from '@/lib/fetchProduct'
+import { EcoButton }            from '@/components/EcoButton'
+import Image                     from 'next/image'
 
-export const dynamic = 'force-dynamic'
-export const dynamicParams = true
-export const revalidate = 60
-export function generateMetadata({ params }) {
-  return {
-    title: `Digital Product Passport – SKU ${params.sku}`,
-    description: `Open digital passport for product SKU ${params.sku}.`,
-  }
-}
-
-export default async function ProductPage({ params }) {
+export default async function ProductPage({ params }: any) {
   const { sku } = params
-  let product
+  let product: any
+
   try {
     product = await fetchProduct(sku)
     if (!product?.sku) throw new Error('not-found')
   } catch {
-    return (
-      <main className="min-h-screen flex items-center justify-center">
-        <p className="text-red-600 text-xl">Fehler – Produkt nicht gefunden.</p>
-      </main>
-    )
+    return <p className="p-8 text-red-600">Ошибка загрузки SKU {sku}</p>
   }
 
   return (
-    <main className="max-w-md mx-auto p-4 space-y-6">
-      {/* Product Card */}
-      <div className="bg-white shadow-lg rounded-2xl overflow-hidden">
+    <main className="max-w-2xl mx-auto p-6 space-y-8">
+      {/* Название и фото */}
+      <div className="flex flex-col sm:flex-row items-center gap-6">
         {product.image_url && (
-          <div className="relative w-full h-64">
+          <div className="w-48 h-48 relative">
             <Image
               src={product.image_url}
               alt={product.name}
               fill
-              className="object-cover"
+              className="object-cover rounded-lg shadow-md"
               unoptimized
             />
           </div>
         )}
-        <div className="p-6">
-          <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
-          <p className="text-gray-700 mb-4">{product.material} &middot; {product.country}</p>
-          <p className="text-gray-800 mb-4 leading-relaxed">
-            Dieses {product.name} wurde aus {product.material} in {product.country} gefertigt. CO₂-Emissionen: {product.co2_kg} kg.
-          </p>
-          <dl className="grid grid-cols-2 gap-x-4 gap-y-2 mb-6 text-sm text-gray-600">
-            <div>
-              <dt className="font-medium">Marketing Claim:</dt>
-              <dd>{product.marketing_claim}</dd>
-            </div>
-            <div>
-              <dt className="font-medium">Last Modified:</dt>
-              <dd>{new Date(product.last_modified).toLocaleDateString('de-DE')}</dd>
-            </div>
-            <div className="col-span-2">
-              <dt className="font-medium">Row Hash:</dt>
-              <dd className="break-all text-xs text-gray-400">{product.row_hash}</dd>
-            </div>
-          </dl>
-          {/* Eco Button */}
-          <EcoButton sku={sku} />
-        </div>
+        <h1 className="text-3xl font-bold">{product.name}</h1>
       </div>
 
-      {/* QR Code Section */}
-      <section className="text-center">
-        <h2 className="font-semibold mb-3">QR Code zum Scannen</h2>
+      {/* Основные данные в карточке */}
+      <div className="bg-white shadow-sm rounded-lg p-6 grid grid-cols-1 gap-4">
+        <p className="text-gray-700">
+          <span className="font-semibold">Материал:</span> {product.material}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Страна производства:</span> {product.country}
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Углеродный след:</span> {product.co2_kg} кг CO₂
+        </p>
+        <p className="text-gray-700">
+          <span className="font-semibold">Маркетинговое заявление:</span>{' '}
+          <span className={product.rule_status === 'warning' ? 'text-red-500' : 'text-green-600'}>
+            {product.marketing_claim}
+          </span>
+        </p>
+      </div>
+
+      {/* Описание (по-русски или нем.) */}
+      <p className="prose">
+        Dieses T-Shirt wurde aus <strong>{product.material}</strong> in <strong>{product.country}</strong> gefertigt.&nbsp;
+        Die Kohlendioxid‑Emissionen liegen bei <strong>{product.co2_kg} kg</strong>.
+      </p>
+
+      {/* Кнопка «Эко‑пункты» */}
+      <EcoButton sku={sku} />
+
+      {/* QR‑код */}
+      <div className="text-center">
+        <h2 className="text-lg font-medium mb-2">QR Code zum Scannen</h2>
         <img
           src={`/api/qrcode/${sku}`}
           alt={`QR code for SKU ${sku}`}
           width={200}
           height={200}
-          className="mx-auto"
+          className="inline-block"
         />
-      </section>
+      </div>
     </main>
   )
 }
