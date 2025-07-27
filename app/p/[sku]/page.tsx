@@ -1,91 +1,82 @@
-// @ts-nocheck
+import Image from 'next/image'
+import { EcoButton } from '@/components/EcoButton'
 import { fetchProduct } from '@/lib/fetchProduct'
-import { EcoButton }    from '@/components/EcoButton'
-import Image from 'next/image';
 
-
-export const dynamic       = 'force-dynamic'
+export const dynamic = 'force-dynamic'
 export const dynamicParams = true
-export const revalidate    = 60
-
-
-export async function generateMetadata({ params }: any) {
-  const { sku } = await params;
+export const revalidate = 60
+export function generateMetadata({ params }) {
   return {
-    title: `Digital Product Passport – SKU ${sku}`,
-    description: `open digital passport for product SKU ${sku}.`,
-  };
+    title: `Digital Product Passport – SKU ${params.sku}`,
+    description: `Open digital passport for product SKU ${params.sku}.`,
+  }
 }
 
-// Убираем строгие типы пропсов — принимаем любой объект
-export default async function ProductPage({ params, searchParams }: any) {
+export default async function ProductPage({ params }) {
   const { sku } = params
-  let product: any
-
+  let product
   try {
     product = await fetchProduct(sku)
     if (!product?.sku) throw new Error('not-found')
-  } catch (err: any) {
+  } catch {
     return (
-      <main className="p-8 text-red-600">
-        <h1 className="text-2xl font-semibold">
-          Fehler – SKU {sku}
-        </h1>
-        <p>{err.message}</p>
+      <main className="min-h-screen flex items-center justify-center">
+        <p className="text-red-600 text-xl">Fehler – Produkt nicht gefunden.</p>
       </main>
     )
   }
 
   return (
-    <main className="p-8 font-sans max-w-xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">
-        Product – SKU {sku}
-      </h1>
+    <main className="max-w-md mx-auto p-4 space-y-6">
+      {/* Product Card */}
+      <div className="bg-white shadow-lg rounded-2xl overflow-hidden">
+        {product.image_url && (
+          <div className="relative w-full h-64">
+            <Image
+              src={product.image_url}
+              alt={product.name}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          </div>
+        )}
+        <div className="p-6">
+          <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
+          <p className="text-gray-700 mb-4">{product.material} &middot; {product.country}</p>
+          <p className="text-gray-800 mb-4 leading-relaxed">
+            Dieses {product.name} wurde aus {product.material} in {product.country} gefertigt. CO₂-Emissionen: {product.co2_kg} kg.
+          </p>
+          <dl className="grid grid-cols-2 gap-x-4 gap-y-2 mb-6 text-sm text-gray-600">
+            <div>
+              <dt className="font-medium">Marketing Claim:</dt>
+              <dd>{product.marketing_claim}</dd>
+            </div>
+            <div>
+              <dt className="font-medium">Last Modified:</dt>
+              <dd>{new Date(product.last_modified).toLocaleDateString('de-DE')}</dd>
+            </div>
+            <div className="col-span-2">
+              <dt className="font-medium">Row Hash:</dt>
+              <dd className="break-all text-xs text-gray-400">{product.row_hash}</dd>
+            </div>
+          </dl>
+          {/* Eco Button */}
+          <EcoButton sku={sku} />
+        </div>
+      </div>
 
-      {product.image_url && (
-  <Image
-    src={product.image_url}
-    alt={product.name}
-    width={400}
-    height={400}
-    className="rounded-lg mb-6"
-    unoptimized     // если домен не в images.domains – временно можно так
-  />
-)}
-
-      <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-2 mb-6">
-        <dt>Name:</dt>                <dd>{product.name}</dd>
-        <dt>Material:</dt>            <dd>{product.material}</dd>
-        <dt>Country of Origin:</dt>   <dd>{product.country}</dd>
-        <dt>CO₂ (kg):</dt>             <dd>{product.co2_kg}</dd>
-        <dt>Marketing Claim:</dt>     <dd>{product.marketing_claim}</dd>
-        <dt>Last Modified:</dt>
-        <dd>
-          {new Date(product.last_modified).toLocaleDateString('de-DE', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-          })}
-        </dd>
-        <dt>Row Hash:</dt>
-        <dd className="break-all text-xs text-gray-500">
-          {product.row_hash}
-        </dd>
-      </dl>
-
-      {/* Вставляем QR-код, который генерирует наш API-роут */}
-      <div className="mb-6">
-        <h2 className="font-semibold mb-2">QR Code zum Scannen:</h2>
+      {/* QR Code Section */}
+      <section className="text-center">
+        <h2 className="font-semibold mb-3">QR Code zum Scannen</h2>
         <img
           src={`/api/qrcode/${sku}`}
           alt={`QR code for SKU ${sku}`}
-          width={256}
-          height={256}
+          width={200}
+          height={200}
+          className="mx-auto"
         />
-      </div>
-
-      {/* Кнопка экопунктов */}
-      <EcoButton sku={sku} />
+      </section>
     </main>
   )
 }
