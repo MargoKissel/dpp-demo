@@ -1,22 +1,13 @@
-// lib/fetchProduct.ts
 export async function fetchProduct(sku: string) {
-  // пытаемся сначала взять SHEETS_API, а если её нет — NEXT_PUBLIC_SHEETS_API_BASE
-  const SHEETS =
-    process.env.SHEETS_API ??
-    process.env.NEXT_PUBLIC_SHEETS_API_BASE;
-  // аналогично для ключа
-  const KEY =
-    process.env.SHEETS_API_KEY ??
-    process.env.NEXT_PUBLIC_SHEETS_API_KEY;
+  const SHEETS = process.env.SHEETS_API              // если вдруг есть
+              ?? process.env.NEXT_PUBLIC_SHEETS_API_BASE;
+  const KEY    = process.env.SHEETS_API_KEY
+              ?? process.env.NEXT_PUBLIC_SHEETS_API_KEY;
 
-  if (!SHEETS || !KEY) {
-    throw new Error('SHEETS_API/SHEETS_API_KEY are not defined');
-  }
+  if (!SHEETS || !KEY) throw new Error('No Sheets ENV vars');
 
   const url = `${SHEETS}?sku=${encodeURIComponent(sku)}&key=${KEY}`;
   const res = await fetch(url, { next: { revalidate: 60 } });
-  if (!res.ok) {
-    throw new Error('Sheets fetch error ' + res.status);
-  }
+  if (!res.ok) throw new Error('Sheets fetch error ' + res.status);
   return res.json();
 }
