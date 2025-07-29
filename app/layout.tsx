@@ -1,19 +1,18 @@
 // src/app/layout.tsx
-import React from 'react';
+import "./globals.css"; // обязательно подключаем Tailwind
+import { ReactNode } from "react";
 
 export const metadata = {
-  title: 'DPP Demo',
-  description: 'Digital Product Passport MVP',
+  title: "Digitaler Produktpass",
+  description: "MVP eines Digital Product Passport",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="de">
+      <body className="bg-gray-50 text-gray-800 min-h-screen flex justify-center p-4">
+        {children}
+      </body>
     </html>
   );
 }
