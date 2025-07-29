@@ -1,9 +1,9 @@
 // src/app/layout.tsx
-import "./globals.css"; // обязательно подключаем Tailwind
-import { ReactNode } from "react";
+import "./globals.css";         // Подключаем Tailwind
+import type { ReactNode } from "react";
 
 export const metadata = {
-  title: "Digitaler Produktpass",
+  title:       "Digitaler Produktpass",
   description: "MVP eines Digital Product Passport",
 };
 
