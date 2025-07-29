@@ -3,9 +3,9 @@ import { fetchProduct } from '@/lib/fetchProduct'
 import { EcoButton }    from '@/components/EcoButton'
 import Image            from 'next/image'
 
-export const dynamic       = 'force-dynamic'
-export const dynamicParams = true
-export const revalidate    = 60
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+export const revalidate = 60;
 
 export function generateMetadata({ params }: { params: { sku: string } }) {
   return {
