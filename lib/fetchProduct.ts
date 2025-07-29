@@ -1,10 +1,20 @@
+// lib/fetchProduct.ts
+
 export async function fetchProduct(sku: string) {
-  const SHEETS = process.env.SHEETS_API              // если вдруг есть
+  const SHEETS = process.env.SHEETS_API              // старый ключ, если был
               ?? process.env.NEXT_PUBLIC_SHEETS_API_BASE;
   const KEY    = process.env.SHEETS_API_KEY
               ?? process.env.NEXT_PUBLIC_SHEETS_API_KEY;
 
-  if (!SHEETS || !KEY) throw new Error('No Sheets ENV vars');
+  // Дебаг: выведем в терминал, что реально читается
+  console.log('🛠️ ENV DEBUG:', {
+    SHEETS,
+    KEY
+  });
+
+  if (!SHEETS || !KEY) {
+    throw new Error(`Env vars missing! SHEETS=${SHEETS} KEY=${KEY}`);
+  }
 
   const url = `${SHEETS}?sku=${encodeURIComponent(sku)}&key=${KEY}`;
   const res = await fetch(url, { next: { revalidate: 60 } });
