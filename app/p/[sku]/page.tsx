@@ -1,11 +1,10 @@
-// @ts-nocheck
 import { fetchProduct } from '@/lib/fetchProduct'
 import { EcoButton }    from '@/components/EcoButton'
 import Image            from 'next/image'
 
-export const dynamic = 'force-dynamic';
-export const dynamicParams = true;
-export const revalidate = 60;
+export const dynamic = 'force-dynamic'
+export const dynamicParams = true
+export const revalidate = 60
 
 export function generateMetadata({ params }: { params: { sku: string } }) {
   return {
@@ -14,7 +13,11 @@ export function generateMetadata({ params }: { params: { sku: string } }) {
   }
 }
 
-export default async function ProductPage({ params }: any) {
+export default async function Page({
+  params,
+}: {
+  params: { sku: string }
+}): Promise<JSX.Element> {
   const { sku } = params
   let product: any
 
@@ -30,12 +33,12 @@ export default async function ProductPage({ params }: any) {
     )
   }
 
-  return (
-    <main className="max-w-xl mx-auto p-6 space-y-6 font-sans">
-      <h1 className="text-3xl font-bold">{product.name}</h1>
+  const co2 = parseFloat(product.co2_kg).toFixed(3)
 
+  return (
+    <main className="max-w-md mx-auto p-6 space-y-6 bg-white rounded-2xl shadow-md">
       {product.image_url && (
-        <div className="w-full h-64 relative overflow-hidden rounded-lg shadow">
+        <div className="w-full h-64 relative rounded-lg overflow-hidden">
           <Image
             src={product.image_url}
             alt={product.name}
@@ -46,46 +49,31 @@ export default async function ProductPage({ params }: any) {
         </div>
       )}
 
-      <dl className="grid gap-y-2">
-        <div>
+      <h1 className="text-3xl font-extrabold">{product.name}</h1>
+
+      <dl className="space-y-2">
+        <div className="flex justify-between">
           <dt className="font-medium">Material:</dt>
           <dd>{product.material}</dd>
         </div>
-        <div>
+        <div className="flex justify-between">
           <dt className="font-medium">Herkunftsland:</dt>
           <dd>{product.country}</dd>
         </div>
-        <div>
+        <div className="flex justify-between">
           <dt className="font-medium">CO₂-Fußabdruck:</dt>
-          <dd>{product.co2_kg} kg</dd>
+          <dd>{co2} kg</dd>
         </div>
       </dl>
 
-      {/* Marketing Claim nur bei rule_status === 'ok' */}
       {product.rule_status === 'ok' && product.marketing_claim && (
-        <p className="mt-4 px-4 py-2 bg-green-100 text-green-800 rounded-md">
-          <strong>Marketing‑Claim:</strong> {product.marketing_claim}
-        </p>
+        <blockquote className="p-4 bg-green-50 border-l-4 border-green-500 text-green-800 rounded">
+          <p className="italic">„{product.marketing_claim}“</p>
+        </blockquote>
       )}
 
-      <p className="mt-6 text-base leading-relaxed">
-        Dieses Produkt besteht aus <strong>{product.material}</strong> in{' '}
-        <strong>{product.country}</strong> und emittiert{' '}
-        <strong>{product.co2_kg} kg CO₂</strong>.
-      </p>
-
-      <EcoButton sku={sku} />
-
-      {/* QR-Code */}
-      <div className="mt-8">
-        <h2 className="font-semibold mb-2">QR-Code scannen</h2>
-        <img
-          src={`/api/qrcode/${sku}`}
-          alt={`QR-Code für SKU ${sku}`}
-          width={256}
-          height={256}
-          className="rounded border"
-        />
+      <div className="pt-4">
+        <EcoButton sku={sku} />
       </div>
     </main>
   )
