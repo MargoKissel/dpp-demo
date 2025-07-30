@@ -2,10 +2,21 @@
 import { fetchProduct } from '@/lib/fetchProduct';
 import { EcoButton }    from '@/components/EcoButton';
 import Image            from 'next/image';
+import 'tailwindcss/tailwind.css'; // falls nötig
 
 export const dynamic       = 'force-dynamic';
 export const dynamicParams = true;
 export const revalidate    = 60;
+
+interface Product {
+  sku: string;
+  name: string;
+  material: string;
+  country: string;
+  co2_kg: number;
+  description?: string;
+  image_url?: string;
+}
 
 export default async function ProductPage({
   params,
@@ -13,11 +24,11 @@ export default async function ProductPage({
   params: { sku: string };
 }) {
   const { sku } = params;
-  let product: any;
+  let product: Product;
 
   try {
     product = await fetchProduct(sku);
-    if (!product?.sku) throw new Error('nicht gefunden');
+    if (!product?.sku) throw new Error('Produkt nicht gefunden');
   } catch (err: any) {
     return (
       <main className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
@@ -29,16 +40,16 @@ export default async function ProductPage({
     );
   }
 
-  // Форматируем число с точками для тысяч и тремя знаками после запятой
-  const co2 = Number(product.co2_kg).toLocaleString('de-DE', {
+  // Zahl formatieren: 45 658,000 → "45.658,000"
+  const co2Formatted = product.co2_kg.toLocaleString('de-DE', {
     minimumFractionDigits: 3,
     maximumFractionDigits: 3,
   });
 
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-lg overflow-hidden max-w-sm w-full">
-        {/* Фото или плейсхолдер */}
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden max-w-sm w-full">
+        {/* Bild-Container */}
         <div className="relative w-full h-64 bg-gray-100">
           {product.image_url ? (
             <Image
@@ -50,40 +61,48 @@ export default async function ProductPage({
             />
           ) : (
             <div className="flex items-center justify-center h-full">
-              <span className="text-gray-400">No Image</span>
+              <span className="text-gray-400">Kein Bild verfügbar</span>
             </div>
           )}
         </div>
 
-        {/* Контент карточки */}
-        <div className="p-6 space-y-4 font-sans">
+        {/* Inhalt */}
+        <div className="p-6 space-y-6 font-sans">
+          {/* Titel */}
           <h1 className="text-3xl font-extrabold">{product.name}</h1>
 
-          <div className="space-y-2 text-gray-700 text-base">
-            <div className="flex justify-between">
-              <span className="font-semibold">Material:</span>
-              <span>{product.material}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">Herstellungsland:</span>
-              <span>{product.country}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">CO₂-Fußabdruck:</span>
-              <span>{co2} kg CO₂</span>
-            </div>
-          </div>
+          {/* Details als description list */}
+          <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2 text-gray-700 text-base">
+            <dt className="font-medium">Material:</dt>
+            <dd>{product.material}</dd>
 
+            <dt className="font-medium">Herstellungsland:</dt>
+            <dd>{product.country}</dd>
+
+            <dt className="font-medium">CO₂-Fußabdruck:</dt>
+            <dd>{co2Formatted} kg CO₂</dd>
+          </dl>
+
+          {/* Beschreibung */}
           <p className="text-gray-600 text-sm leading-relaxed">
             {product.description ||
-              `Dieses T-Shirt wurde aus ${product.material} in ${product.country} gefertigt. Die Kohlendioxid-Emissionen belaufen sich auf ${co2} kg CO₂.`}
+              `Dieses T-Shirt wurde aus ${product.material} in ${product.country} gefertigt. Die CO₂-Emissionen belaufen sich auf ${co2Formatted} kg.`}
           </p>
 
-          {/* Увеличенная кнопка */}
-          <EcoButton
-            sku={sku}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg text-lg"
-          />
+          {/* Große zentrale Button */}
+          <div>
+            <EcoButton
+              sku={sku}
+              className="
+                w-full 
+                bg-green-600 hover:bg-green-700 
+                text-white font-semibold 
+                py-3 rounded-lg 
+                text-lg
+                transition-colors
+                "
+            />
+          </div>
         </div>
       </div>
     </main>
