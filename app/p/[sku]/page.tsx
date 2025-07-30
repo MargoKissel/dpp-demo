@@ -1,4 +1,5 @@
 // app/p/[sku]/page.tsx
+import './globals.css';           // если вы не импортируете в layout.tsx
 import { fetchProduct } from '@/lib/fetchProduct';
 import { EcoButton }    from '@/components/EcoButton';
 import Image            from 'next/image';
@@ -6,6 +7,8 @@ import Image            from 'next/image';
 export const dynamic       = 'force-dynamic';
 export const dynamicParams = true;
 export const revalidate    = 60;
+
+// Убираем generateStaticParams()
 
 export default async function ProductPage({
   params,
@@ -33,7 +36,7 @@ export default async function ProductPage({
     <main className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-lg overflow-hidden max-w-sm w-full">
         {product.image_url && (
-          <div className="relative w-full h-64">
+          <div className="relative w-full h-64 bg-gray-50">
             <Image
               src={product.image_url}
               alt={product.name}
@@ -53,19 +56,19 @@ export default async function ProductPage({
             </div>
             <div className="flex justify-between">
               <span className="font-semibold">Herstellungsland:</span>
-              <span>{product.origin}</span>
+              <span>{product.country}</span>  {/* <-- здесь country */}
             </div>
             <div className="flex justify-between">
-              <span className="font-semibold">CO₂‑Fußabdruck:</span>
-              <span>{Number(product.co2_kg).toFixed(3)} kg CO₂</span>
+              <span className="font-semibold">CO₂-Fußabdruck:</span>
+              <span>{Number(product.co2_kg).toFixed(3)} kg CO₂</span>
             </div>
           </div>
 
           <p className="text-gray-600 text-sm leading-relaxed">
             {product.description ||
-              `Dieses T-Shirt wurde aus Baumwolle in ${product.origin} gefertigt. Die Kohlendioxid‑Emissionen belaufen sich auf ${Number(
+              `Dieses T-Shirt wurde aus Baumwolle in ${product.country} gefertigt. Die Kohlendioxid-Emissionen belaufen sich auf ${Number(
                 product.co2_kg
-              ).toFixed(3)} kg CO₂.`}
+              ).toFixed(3)} kg CO₂.`}
           </p>
 
           <EcoButton sku={sku} />
