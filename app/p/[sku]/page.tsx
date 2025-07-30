@@ -1,92 +1,70 @@
-import { fetchProduct } from '@/lib/fetchProduct'
-import { EcoButton }    from '@/components/EcoButton'
-import Image            from 'next/image'
+import { fetchProduct } from '@/lib/fetchProduct';
+import { EcoButton } from '@/components/EcoButton';
+import Image from 'next/image';
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 60
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+export const revalidate = 60;
 
-export function generateMetadata({ params }: { params: { sku: string } }) {
-  return {
-    title: `Digitaler Produktpass – SKU ${params.sku}`,
-    description: `Digitaler Produktpass für SKU ${params.sku}.`,
-  }
-}
-
-export default async function Page({
+export default async function ProductPage({
   params,
 }: {
-  params: { sku: string }
-}): Promise<JSX.Element> {
-  const { sku } = params
-  let product: any
+  params: { sku: string };
+}) {
+  const { sku } = params;
+  let product: any;
 
   try {
-    product = await fetchProduct(sku)
-    if (!product?.sku) throw new Error('Produkt nicht gefunden')
+    product = await fetchProduct(sku);
+    if (!product?.sku) throw new Error('not-found');
   } catch (err: any) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
-        <div className="bg-white p-8 rounded-xl shadow text-red-600">
-          <h1 className="text-2xl font-semibold mb-2">Fehler – SKU {sku}</h1>
+      <main className="min-h-screen flex items-center justify-center text-red-600 p-6">
+        <div>
+          <h1 className="text-2xl font-semibold">Fehler – SKU {sku}</h1>
           <p>{err.message}</p>
         </div>
-      </div>
-    )
+      </main>
+    );
   }
 
-  // Форматируем CO₂ с точкой и 3 знаками
-  const co2 = parseFloat(product.co2_kg).toFixed(3)
-
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <article className="w-full max-w-lg bg-white rounded-2xl shadow-lg overflow-hidden">
-        {/* Изображение */}
+    <main className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-md p-6 max-w-md w-full space-y-4">
         {product.image_url && (
-          <div className="w-full h-72 relative bg-gray-100">
-            <Image
-              src={product.image_url}
-              alt={product.name}
-              fill
-              style={{ objectFit: 'cover' }}
-              unoptimized
-            />
-          </div>
+          <Image
+            src={product.image_url}
+            alt={product.name}
+            width={400}
+            height={400}
+            className="rounded-lg w-full object-cover"
+            unoptimized
+          />
         )}
 
-        <div className="p-6 space-y-6">
-          {/* Название */}
-          <h1 className="text-3xl font-bold leading-tight">{product.name}</h1>
+        <h1 className="text-xl font-bold">{product.name}</h1>
 
-          {/* Атрибуты */}
-          <dl className="grid grid-cols-2 gap-y-2 text-base">
-            <dt className="font-medium">Material</dt>
-            <dd className="text-right">{product.material}</dd>
-            <dt className="font-medium">Herkunftsland</dt>
-            <dd className="text-right">{product.country}</dd>
-            <dt className="font-medium">CO₂-Fußabdruck</dt>
-            <dd className="text-right">{co2} kg</dd>
-          </dl>
-
-          {/* Описание (если есть) */}
-          {product.description && (
-            <p className="text-sm text-gray-600 leading-relaxed">
-              {product.description}
-            </p>
-          )}
-
-          {/* Marketing‑Claim */}
-          {product.rule_status === 'ok' && product.marketing_claim && (
-            <div className="p-4 bg-green-50 border-l-4 border-green-500 text-green-800 rounded">
-              <p className="italic text-center">„{product.marketing_claim}“</p>
-            </div>
-          )}
-
-          {/* Кнопка */}
-          <div className="flex justify-center">
-            <EcoButton sku={sku} />
+        <div className="text-sm text-gray-800 space-y-1">
+          <div className="flex justify-between">
+            <span className="font-semibold">Material:</span>
+            <span>{product.material}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-semibold">Herstellungsland:</span>
+            <span>{product.origin}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="font-semibold">CO₂-Fußabdruck:</span>
+            <span>{Number(product.carbon_footprint).toFixed(3)} kg</span>
           </div>
         </div>
-      </article>
-    </div>
-  )
+
+        <p className="text-sm text-gray-600">
+          {product.description || `Dieses T-Shirt wurde aus Baumwolle in ${product.origin} gefertigt. Die Kohlendioxid-Emissionen belaufen sich auf ${Number(product.carbon_footprint).toFixed(3)} kg CO₂.`}
+        </p>
+
+        <EcoButton sku={sku} />
+      </div>
+    </main>
+  );
 }
