@@ -1,9 +1,12 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './app/**/*.{ts,tsx,js,jsx}',
-    './components/**/*.{ts,tsx,js,jsx}'
+    // сканировать файлы app‑router и компоненты
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}"
   ],
-  theme: { extend: {} },
-  plugins: []
+  theme: {
+    extend: {},
+  },
+  plugins: [],
 }
