@@ -8,10 +8,8 @@ const nextConfig = {
     ],
     unoptimized: true,
   },
-
-  // Добавляем эту секцию, чтобы игнорировать ошибки TS при сборке
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: true, // временно, можно убрать после refine
   },
 };
 
