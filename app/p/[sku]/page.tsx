@@ -2,7 +2,6 @@
 import { fetchProduct } from '@/lib/fetchProduct';
 import { EcoButton }    from '@/components/EcoButton';
 import Image            from 'next/image';
-import 'tailwindcss/tailwind.css'; // falls nötig
 
 export const dynamic       = 'force-dynamic';
 export const dynamicParams = true;
