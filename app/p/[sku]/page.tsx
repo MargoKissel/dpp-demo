@@ -1,5 +1,4 @@
 // app/p/[sku]/page.tsx
-import './globals.css';           // если вы не импортируете в layout.tsx
 import { fetchProduct } from '@/lib/fetchProduct';
 import { EcoButton }    from '@/components/EcoButton';
 import Image            from 'next/image';
