@@ -1,18 +1,16 @@
-// app/layout.tsx
-import './globals.css'
-import { Inter } from 'next/font/google'
-import type { ReactNode } from 'react'
+import './globals.css';
+import { Inter } from 'next/font/google';
+import type { ReactNode } from 'react';
 
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['400','600','700'],
-  variable: '--font-inter',
-})
+  weight: ['400', '600', '700'],
+});
 
 export const metadata = {
   title: 'Digitaler Produktpass',
   description: 'MVP eines Digital Product Passport',
-}
+};
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -22,5 +20,5 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {children}
       </body>
     </html>
-  )
+  );
 }
