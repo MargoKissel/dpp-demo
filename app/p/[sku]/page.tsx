@@ -7,18 +7,13 @@ export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 export const revalidate = 60;
 
-// utility: из Google-Drive share URL делаем direct-download
 function toDirectDriveUrl(raw?: string) {
   if (!raw) return null;
-  // если уже корректный прямой URL
-  if (raw.startsWith('https://drive.google.com/uc')) return raw;
-  // пробуем выцепить ID из /d/<ID>/
-  const m = raw.match(/\/d\/([^/]+)/);
-  if (m) {
-    return `https://drive.google.com/uc?export=download&id=${m[1]}`;
+  const idMatch = raw.match(/\/d\/([^/]+)\//);
+  if (idMatch) {
+    return `https://drive.google.com/uc?export=download&id=${idMatch[1]}`;
   }
-  // иначе возвращаем как есть
-  return raw;
+  return raw; // если уже прямой URL
 }
 
 export async function generateMetadata({ params }: any) {
@@ -68,16 +63,16 @@ export default async function ProductPage({ params }: any) {
     <div className="min-h-screen bg-gray-50 flex items-start justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-xl shadow overflow-hidden">
         {imageUrl && (
-          <div className="relative w-full h-64">
-            <Image
-              src={imageUrl}
-              alt={product.name}
-              fill
-              className="object-contain bg-gray-100"
-              unoptimized
-            />
-          </div>
-        )}
+      <div className="relative w-full h-64">
+        <Image
+          src={imageUrl}
+          alt={product.name}
+          fill
+          className="object-contain bg-gray-100"
+          unoptimized
+        />
+      </div>
+    )}
 
         <div className="p-6">
           <h1 className="text-3xl font-bold mb-4 text-gray-900">
