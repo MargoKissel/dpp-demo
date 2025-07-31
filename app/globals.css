@@ -1,14 +1,20 @@
 /* app/globals.css */
+/* 1) @import первого, до всех @tailwind */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* добавим импорт шрифта */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
 @layer base {
-  html, body {
+  html,
+  body {
     @apply bg-gray-50 text-gray-800;
+    /* используем импортированный Inter */
     font-family: 'Inter', sans-serif;
+  }
+  /* можно ещё добавить: */
+  a {
+    @apply text-blue-600 hover:underline;
   }
 }
