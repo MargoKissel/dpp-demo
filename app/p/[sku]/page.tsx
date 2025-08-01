@@ -1,6 +1,8 @@
+// app/p/[sku]/page.tsx
 import { fetchProduct } from '@/lib/fetchProduct';
 import { EcoButton } from '@/components/EcoButton';
 import Image from 'next/image';
+import { normalizeImageUrl } from '@/lib/normalizeImageUrl'; 
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 60;
@@ -39,7 +41,7 @@ export default async function Page({ params }: { params: { sku: string } }) {
                 .toFixed(3)
                 .replace(/\.?0+$/, '');
 
-  const image = toDrive(product.image_url);
+  const image = normalizeImageUrl(product.image_url);
   const artikelWort = artikel[product.name] ?? 'Dieses';
 
   return (
