@@ -8,6 +8,7 @@ export const dynamic        = 'force-dynamic'
 export const dynamicParams  = true
 
 // Небольшие словари для перевода
+const proxied = `/api/image?src=${encodeURIComponent(normalizeImageUrl(product.image_url))}`
 const mat = { Cotton:'Baumwolle', Denim:'Denim', Leather:'Leder' } as const
 const ctr = { Turkey:'Türkei', Germany:'Deutschland', Spain:'Spanien' } as const
 const artikel = { 'T-Shirt Basic':'Dieses', 'Backpack Eco':'Dieser' } as const
