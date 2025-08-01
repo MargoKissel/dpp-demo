@@ -1,110 +1,65 @@
 // app/p/[sku]/page.tsx
-import Image from 'next/image';
-import { fetchProduct } from '@/lib/fetchProduct';
-import { normalizeImageUrl } from '@/lib/normalizeImageUrl';
-import { EcoButton } from '@/components/EcoButton';
+import { fetchProduct }   from '@/lib/fetchProduct'
+import { normalizeImageUrl } from '@/lib/normalizeImageUrl'
+import { EcoButton }      from '@/components/EcoButton'
 
-/* ────────────────────────────────────────────────────────────────────────── */
+export const revalidate     = 60
+export const dynamic        = 'force-dynamic'
+export const dynamicParams  = true
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 60;
+// Небольшие словари для перевода
+const mat = { Cotton:'Baumwolle', Denim:'Denim', Leather:'Leder' } as const
+const ctr = { Turkey:'Türkei', Germany:'Deutschland', Spain:'Spanien' } as const
+const artikel = { 'T-Shirt Basic':'Dieses', 'Backpack Eco':'Dieser' } as const
 
-/** Переводы значений из таблицы → на немецкий */
-const materialMap: Record<string, string> = {
-  Cotton: 'Baumwolle',
-  Denim: 'Denim',
-  Leather: 'Leder',
-  'Li-Ion': 'Li-Ion',
-};
+export default async function ProductPage({ params }: { params:{sku:string} }) {
+  const product = await fetchProduct(params.sku)
 
-const countryMap: Record<string, string> = {
-  Turkey: 'Türkei',
-  Germany: 'Deutschland',
-  Spain: 'Spanien',
-  China: 'China',
-};
+  if (!product?.sku)
+    return <main className="p-8 text-red-600">
+             <h1 className="text-2xl font-semibold">Fehler – SKU {params.sku}</h1>
+             <p>Produkt nicht gefunden.</p>
+           </main>
 
-/** Какое указательное слово ставить перед названием товара */
-const artikel: Record<string, string> = {
-  'T-Shirt Basic': 'Dieses',  // sächlich
-  'Backpack Eco': 'Dieser',   // maskulin
-};
+  const material   = mat[product.material] ?? product.material
+  const country    = ctr[product.country]  ?? product.country
+  const co2        = (+product.co2_kg).toFixed(3).replace(/\.?0+$/,'')
+  const img        = normalizeImageUrl(product.image_url)
+  const artikelWrt = artikel[product.name] ?? 'Dieses'
 
-/* ────────────────────────────────────────────────────────────────────────── */
-
-export default async function Page({ params }: { params: { sku: string } }) {
-  const { sku } = params;
-
-  /* ── получаем продукт из Google Sheets ─────────────────────────────────── */
-  const product = await fetchProduct(sku);
-
-  if (!product?.sku) {
-    return (
-      <main className="p-8 text-red-600">
-        <h1 className="text-2xl font-semibold">Fehler – SKU {sku}</h1>
-        <p>Produkt nicht gefunden.</p>
-      </main>
-    );
-  }
-
-  /* ── пост-обработка данных ─────────────────────────────────────────────── */
-  const material = materialMap[product.material] ?? product.material;
-  const country  = countryMap[product.country]  ?? product.country;
-
-  // 45 658 → 45 658   |   45.658000 → 45.658
-  const co2 = Number(product.co2_kg)
-    .toFixed(3)
-    .replace(/\.?0+$/, '');
-
-  const image = normalizeImageUrl(product.image_url);
-  const artikelWort = artikel[product.name] ?? 'Dieses';
-
-  /* ── UI ─────────────────────────────────────────────────────────────────── */
   return (
-    <div className="min-h-screen bg-gray-50 flex items-start justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-xl shadow overflow-hidden">
-        {/* картинка товара */}
-        {image && (
-          <div className="relative w-full h-64 sm:h-72 md:h-80 bg-gray-100">
-            <Image
-              src={image}
-              alt={product.name}
-              fill
-              className="object-contain"
-              unoptimized
-            />
+    <div className="min-h-screen bg-gray-50 flex justify-center p-4">
+      <article className="max-w-md w-full bg-white rounded-xl shadow overflow-hidden">
+        {/* --- картинка -------------------------------------------- */}
+        {img && (
+          <div className="w-full h-64 bg-gray-100 flex items-center justify-center">
+            <img src={img}
+                 alt={product.name}
+                 className="object-contain max-h-full" />
           </div>
         )}
 
-        {/* текстовое содержимое */}
+        {/* --- карточка -------------------------------------------- */}
         <div className="p-6">
-          <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
+          <h1 className="text-3xl font-extrabold mb-4">{product.name}</h1>
 
-          <div className="space-y-1 mb-4 text-[17px] leading-6">
-            <p>
-              <span className="font-semibold">Material:&nbsp;</span>
-              {material}
-            </p>
-            <p>
-              <span className="font-semibold">Herstellungsland:&nbsp;</span>
-              {country}
-            </p>
-            <p>
-              <span className="font-semibold">CO₂-Fußabdruck:&nbsp;</span>
-              {co2}&nbsp;kg&nbsp;CO₂
-            </p>
-          </div>
+          <dl className="space-y-1 text-lg mb-4">
+            <div><dt className="font-semibold inline">Material:&nbsp;</dt>
+                 <dd className="inline">{material}</dd></div>
+            <div><dt className="font-semibold inline">Herstellungsland:&nbsp;</dt>
+                 <dd className="inline">{country}</dd></div>
+            <div><dt className="font-semibold inline">CO₂-Fußabdruck:&nbsp;</dt>
+                 <dd className="inline">{co2}&nbsp;kg&nbsp;CO₂</dd></div>
+          </dl>
 
-          <p className="mb-6 text-gray-700 leading-relaxed">
-            {artikelWort} {product.name} wurde aus {material} in {country}{' '}
-            gefertigt. Die Kohlendioxid-Emissionen belaufen sich auf {co2}&nbsp;
-            kg&nbsp;CO₂.
+          <p className="mb-6 leading-relaxed">
+            {artikelWrt}&nbsp;{product.name} wurde aus {material} in {country} gefertigt.
+            Die Kohlendioxid-Emissionen belaufen sich auf {co2}&nbsp;kg&nbsp;CO₂.
           </p>
 
-          {/* кнопка «Eco-Punkte» */}
-          <EcoButton sku={sku} />
+          <EcoButton sku={product.sku} />
         </div>
-      </div>
+      </article>
     </div>
-  );
+  )
 }
