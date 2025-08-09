@@ -1,10 +1,10 @@
 // app/p/[sku]/page.tsx
 import MiniHub from '@/components/MiniHub';
 import { fetchProductAndRelated } from '@/lib/fetchProduct';
+import { normalizeImageUrl } from '@/lib/normalizeImageUrl';
 
-export const revalidate    = 60;
-export const dynamic       = 'force-dynamic';
-export const dynamicParams = true;
+export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 const mat = { Cotton:'Baumwolle', Denim:'Denim', Leather:'Leder' } as const;
 const ctr = { Turkey:'Türkei', Germany:'Deutschland', Spain:'Spanien', Tunisia:'Tunesien', China:'China' } as const;
@@ -28,18 +28,25 @@ export default async function ProductPage({ params }: { params:{sku:string} }) {
     ? co2Num.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 3 })
     : String(product.co2_kg ?? '');
 
-  const img = product.image_url
-    ? `/api/image?src=${encodeURIComponent(String(product.image_url))}`
-    : null;
+  const raw = normalizeImageUrl(product.image_url);
+  const img = raw ? `/api/image?src=${encodeURIComponent(raw)}` : null;
 
   return (
     <div className="min-h-screen bg-gray-50 flex justify-center p-4">
       <article className="max-w-md w-full bg-white rounded-xl shadow overflow-hidden">
-        {img && (
-          <div className="w-full h-64 bg-gray-100 flex items-center justify-center">
-            <img src={img} alt={product.name} className="object-contain max-h-full" />
-          </div>
-        )}
+        {/* HERO image */}
+        <div className="w-full h-64 bg-gray-100 flex items-center justify-center">
+          {img ? (
+            <img
+              src={img}
+              alt={product.name}
+              className="object-contain max-h-full"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/placeholder.png'; }}
+            />
+          ) : (
+            <img src="/placeholder.png" alt="" className="object-contain max-h-full" />
+          )}
+        </div>
 
         <div className="p-6">
           <h1 className="text-3xl font-extrabold mb-4">{product.name}</h1>
@@ -55,7 +62,6 @@ export default async function ProductPage({ params }: { params:{sku:string} }) {
             Die Kohlendioxid-Emissionen belaufen sich auf {co2}&nbsp;kg&nbsp;CO₂.
           </p>
 
-          {/* Карусель похожих */}
           <MiniHub items={related} />
         </div>
       </article>
