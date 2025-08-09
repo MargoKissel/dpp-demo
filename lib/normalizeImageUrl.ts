@@ -1,14 +1,25 @@
 // lib/normalizeImageUrl.ts
-export function normalizeImageUrl(raw?: string): string | null {
-  if (!raw) return null;
+export function normalizeImageUrl(input?: string | null): string | null {
+  if (!input) return null;
+  try {
+    const u = new URL(input);
 
-  // Google Drive «/file/d/…/view» → «/uc?export=view&id=…»
-  const g = raw.match(/drive.google.com\/file\/d\/([^/]+)/);
-  if (g) return `https://drive.google.com/uc?export=view&id=${g[1]}`;
+    // Google Drive → прямой файл
+    if (u.hostname.includes('drive.google.com')) {
+      // /file/d/<id>/view
+      const m = u.pathname.match(/\/file\/d\/([^/]+)/);
+      const id = m?.[1] || u.searchParams.get('id');
+      if (id) return `https://drive.google.com/uc?export=download&id=${id}`;
+    }
 
-  // Dropbox «?dl=0» → «?raw=1» (выдаёт именно файл)
-  if (raw.includes('dropbox.com')) return raw.replace(/\?dl=\d/, '?raw=1');
+    // Dropbox share → прямой файл
+    if (u.hostname.endsWith('dropbox.com')) {
+      u.searchParams.set('dl', '1');
+      return u.toString();
+    }
 
-  // Если это уже прямая картинка или другой CDN — оставляем как есть
-  return raw;
+    return input;
+  } catch {
+    return input;
+  }
 }
