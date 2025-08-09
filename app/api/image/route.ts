@@ -1,26 +1,35 @@
 // app/api/image/route.ts
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server';
+import { normalizeImageUrl } from '@/lib/normalizeImageUrl';
 
-export const runtime    = 'edge'
-export const revalidate = 86_400          // <- литерал, 24 h
+export const runtime = 'edge';
 
 export async function GET(req: NextRequest) {
-  const src = req.nextUrl.searchParams.get('src')
-  if (!src) return new Response('missing src', { status: 400 })
+  const { searchParams } = new URL(req.url);
+  const src = searchParams.get('src');
+  if (!src) return NextResponse.json({ error: 'missing src' }, { status: 400 });
 
-  try {
-    const upstream = await fetch(src, { redirect: 'follow' })
-    if (!upstream.ok) throw new Error(`upstream ${upstream.status}`)
+  const url = normalizeImageUrl(decodeURIComponent(src));
+  if (!url) return NextResponse.json({ error: 'bad src' }, { status: 400 });
 
-    const headers = new Headers()
-    headers.set('Content-Type', upstream.headers.get('Content-Type') ?? 'image/jpeg')
-    headers.set(
-      'Cache-Control',
-      upstream.headers.get('Cache-Control') ?? 'public, max-age=86400'
-    )
+  const upstream = await fetch(url, {
+    // некоторые CDN/Drive требуют «нормальный» UA/Referer
+    headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': '*/*' },
+    redirect: 'follow',
+    cache: 'no-store',
+  });
 
-    return new Response(upstream.body, { status: 200, headers })
-  } catch {
-    return new Response('image proxy error', { status: 502 })
+  if (!upstream.ok) {
+    return NextResponse.json({ error: 'upstream ' + upstream.status }, { status: 502 });
   }
+
+  const buff = await upstream.arrayBuffer();
+  const ct = upstream.headers.get('content-type') || 'image/jpeg';
+
+  return new NextResponse(buff, {
+    headers: {
+      'content-type': ct,
+      'cache-control': 'public, max-age=86400, immutable',
+    },
+  });
 }
